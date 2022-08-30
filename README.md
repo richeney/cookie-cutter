@@ -69,7 +69,7 @@ The module (./module/cookie) is simple. Its role is to quickly create a resource
 
 Example call:
 
-```json
+```hcl
 module "customer_subscription_alias" {
   source    = "./module/cookie"
   providers = { azurerm = azurerm.customer_subscription_alias }
@@ -82,7 +82,7 @@ module "customer_subscription_alias" {
 
 The [aliased provider block](https://www.terraform.io/language/providers/configuration#alias-multiple-provider-configurations) must be found in the config. In this example they are consolidated in the ./provider.tf file. E.g.:
 
-```json
+```hcl
 provider "azurerm" {
   features {}
   alias           = "citadel"
@@ -101,3 +101,13 @@ Note the credentials (tenant_id, client_id, client_secret) relate to the service
 ## CI/CD notes
 
 If you are using something similar in a CI/CD pipeline such as GitHub Actions then you would commonly store the service principal credentials in the environment variables.
+
+## Making it more elegant
+
+...is difficult. You cannot use variables or functions for the provider alias value, so constructs such as for_each do not work.
+
+You could reorganise the .tf files, and change to a file per customer, containing both the aliased provider plus the module call. Adding a new customer would then simply require duplicating an existing file and customising with a new alias name and subscription_id value.
+
+You could upvote the open issue, [Ability to pass providers to modules in for_each](https://github.com/hashicorp/terraform/issues/24476).
+
+Or you could use the excellent [terragrunt example](https://github.com/hashicorp/terraform/issues/24476#issuecomment-619450972) in the same issue to generate the .tf files in a large environment.
